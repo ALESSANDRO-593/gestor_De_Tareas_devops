@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Tareas</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 20px; }
+        h1 { color: #333; }
+        .mensaje { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .exito { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+
+        form { margin-bottom: 20px; }
+        input[type="text"] { padding: 8px; width: 200px; }
+        button { padding: 8px 12px; margin-left: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        button.agregar { background: #007bff; color: white; }
+        button.editar { background: #ffc107; color: black; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #007bff; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+    </style>
+</head>
+<body>
+    <h1>Gestor de Tareas</h1>
+
+    {% if mensaje %}
+        <div class="mensaje exito">{{ mensaje }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="mensaje error">{{ error }}</div>
+    {% endif %}
+
+    <!-- Formulario para agregar tarea -->
+    <form action="/tareas" method="post">
+        <input type="text" name="nombre" placeholder="Nueva tarea" required>
+        <button type="submit" class="agregar">Agregar</button>
+    </form>
+
+    <!-- Tabla de tareas -->
+    <h2>Lista de tareas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tarea</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tarea in tareas %}
+                <tr>
+                    <td>{{ tarea.nombre }}</td>
+                    <td>
+                        <!-- Formulario para editar tarea -->
+                        <form action="/tareas/{{ tarea.id }}" method="post" style="display:inline;">
+                            <input type="hidden" name="_method" value="PUT">
+                            <input type="text" name="nombre" value="{{ tarea.nombre }}" required>
+                            <button type="submit" class="editar">Guardar cambios</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2">No hay tareas registradas</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
