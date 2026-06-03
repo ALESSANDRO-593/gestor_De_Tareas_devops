@@ -1,45 +1,132 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Configuración básica del documento -->
     <meta charset="UTF-8">
     <title>Gestor de Tareas</title>
+
+    <!-- Estilos CSS de la interfaz -->
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 20px; }
-        h1 { color: #333; }
-        .mensaje { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .exito { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
+        /* Estilo general de la página */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 20px;
+        }
 
-        form { margin-bottom: 20px; }
-        input[type="text"] { padding: 8px; width: 200px; }
-        button { padding: 8px 12px; margin-left: 5px; border: none; border-radius: 4px; cursor: pointer; }
-        button.agregar { background: #007bff; color: white; }
-        button.editar { background: #ffc107; color: black; }
+        /* Título principal */
+        h1 {
+            color: #333;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #007bff; color: white; }
-        tr:hover { background-color: #f1f1f1; }
+        /* Mensajes de respuesta del sistema */
+        .mensaje {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Mensaje de éxito */
+        .exito {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Mensaje de error */
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Formulario principal */
+        form {
+            margin-bottom: 20px;
+        }
+
+        /* Campo de texto */
+        input[type="text"] {
+            padding: 8px;
+            width: 200px;
+        }
+
+        /* Botones */
+        button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Botón agregar */
+        button.agregar {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Botón editar */
+        button.editar {
+            background: #ffc107;
+            color: black;
+        }
+
+        /* Tabla de tareas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Encabezados de la tabla */
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Efecto al pasar el mouse */
+        tr:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
+
 <body>
+
+    <!-- Título principal de la aplicación -->
     <h1>Gestor de Tareas</h1>
 
+    <!-- Mensaje de éxito enviado desde Flask -->
     {% if mensaje %}
         <div class="mensaje exito">{{ mensaje }}</div>
     {% endif %}
+
+    <!-- Mensaje de error enviado desde Flask -->
     {% if error %}
         <div class="mensaje error">{{ error }}</div>
     {% endif %}
 
-    <!-- Formulario para agregar tarea -->
+    <!-- Formulario para registrar nuevas tareas -->
     <form action="/tareas" method="post">
-        <input type="text" name="nombre" placeholder="Nueva tarea" required>
-        <button type="submit" class="agregar">Agregar</button>
+        <input
+            type="text"
+            name="nombre"
+            placeholder="Nueva tarea"
+            required
+        >
+        <button type="submit" class="agregar">
+            Agregar
+        </button>
     </form>
 
-    <!-- Tabla de tareas -->
+    <!-- Sección de listado de tareas -->
     <h2>Lista de tareas</h2>
+
     <table>
         <thead>
             <tr>
@@ -47,25 +134,68 @@
                 <th>Acciones</th>
             </tr>
         </thead>
+
         <tbody>
+
+            <!-- Recorrido dinámico de tareas enviadas por Flask -->
             {% for tarea in tareas %}
                 <tr>
+
+                    <!-- Nombre de la tarea -->
                     <td>{{ tarea.nombre }}</td>
+
                     <td>
-                        <!-- Formulario para editar tarea -->
-                        <form action="/tareas/{{ tarea.id }}" method="post" style="display:inline;">
-                            <input type="hidden" name="_method" value="PUT">
-                            <input type="text" name="nombre" value="{{ tarea.nombre }}" required>
-                            <button type="submit" class="editar">Guardar cambios</button>
+
+                        <!--
+                            Formulario de edición.
+                            Utiliza POST con un campo oculto
+                            para simular el método PUT.
+                        -->
+                        <form
+                            action="/tareas/{{ tarea.id }}"
+                            method="post"
+                            style="display:inline;"
+                        >
+
+                            <!-- Simulación de método PUT -->
+                            <input
+                                type="hidden"
+                                name="_method"
+                                value="PUT"
+                            >
+
+                            <!-- Campo editable -->
+                            <input
+                                type="text"
+                                name="nombre"
+                                value="{{ tarea.nombre }}"
+                                required
+                            >
+
+                            <!-- Botón de actualización -->
+                            <button
+                                type="submit"
+                                class="editar"
+                            >
+                                Guardar cambios
+                            </button>
+
                         </form>
                     </td>
+
                 </tr>
+
+            <!-- Si no existen tareas -->
             {% else %}
                 <tr>
-                    <td colspan="2">No hay tareas registradas</td>
+                    <td colspan="2">
+                        No hay tareas registradas
+                    </td>
                 </tr>
             {% endfor %}
+
         </tbody>
     </table>
+
 </body>
 </html>
