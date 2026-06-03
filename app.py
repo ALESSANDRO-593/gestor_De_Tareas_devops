@@ -191,7 +191,7 @@ def editar_tarea(id):
             return render_template(
                 "index.html",
                 tareas=tareas,
-                error="El nombre de la tarea no puede estar vacío"
+                error="El nombre no puede estar erroneo"
             )
 
         return jsonify({
