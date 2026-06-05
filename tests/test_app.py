@@ -5,6 +5,7 @@ Estas pruebas verifican:
 1. La creación de tareas.
 2. La edición de tareas mediante API (PUT).
 3. La edición de tareas mediante formularios HTML.
+4. El cambio de estado de una tarea.
 
 Framework utilizado:
 - Pytest
@@ -44,7 +45,8 @@ def limpiar_tabla():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS tareas (
         id SERIAL PRIMARY KEY,
-        nombre VARCHAR(255) NOT NULL
+        nombre VARCHAR(255) NOT NULL,
+        estado VARCHAR(20) DEFAULT 'Pendiente'
     );
     """)
 
@@ -73,14 +75,12 @@ def cliente():
 def test_crear_tarea(cliente):
     """
     Verifica que una tarea pueda crearse correctamente.
-
-    Pasos:
-    1. Envía una solicitud POST para crear una tarea.
-    2. Comprueba que la respuesta sea exitosa.
-    3. Verifica que la tarea aparezca en la página principal.
     """
 
-    res = cliente.post("/tareas", json={"nombre": "Original"})
+    res = cliente.post(
+        "/tareas",
+        json={"nombre": "Original"}
+    )
 
     assert res.status_code in (200, 201)
 
@@ -92,15 +92,12 @@ def test_crear_tarea(cliente):
 def test_editar_tarea_api(cliente):
     """
     Verifica la edición de una tarea mediante la API REST.
-
-    Pasos:
-    1. Crear una tarea inicial.
-    2. Obtener su ID desde la base de datos.
-    3. Editar la tarea mediante PUT.
-    4. Verificar que el cambio se haya realizado.
     """
 
-    cliente.post("/tareas", json={"nombre": "ViejoNombre"})
+    cliente.post(
+        "/tareas",
+        json={"nombre": "ViejoNombre"}
+    )
 
     cur = conn.cursor()
 
@@ -133,15 +130,12 @@ def test_editar_tarea_form(cliente):
     """
     Verifica la edición de una tarea utilizando
     un formulario HTML con método POST y override PUT.
-
-    Pasos:
-    1. Crear una tarea.
-    2. Obtener su ID.
-    3. Enviar formulario para editarla.
-    4. Confirmar que el nombre fue actualizado.
     """
 
-    cliente.post("/tareas", data={"nombre": "ViejoNombre"})
+    cliente.post(
+        "/tareas",
+        data={"nombre": "ViejoNombre"}
+    )
 
     cur = conn.cursor()
 
@@ -171,3 +165,60 @@ def test_editar_tarea_form(cliente):
 
     assert "NuevoNombre" in contenido
     assert "ViejoNombre" not in contenido
+
+
+def test_cambiar_estado(cliente):
+    """
+    Verifica que una tarea pueda cambiar
+    de Pendiente a Completada.
+    """
+
+    cliente.post(
+        "/tareas",
+        json={"nombre": "Tarea Estado"}
+    )
+
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT id, estado
+        FROM tareas
+        WHERE nombre = %s;
+        """,
+        ("Tarea Estado",)
+    )
+
+    tarea = cur.fetchone()
+
+    tarea_id = tarea[0]
+    estado_inicial = tarea[1]
+
+    assert estado_inicial == "Pendiente"
+
+    cur.close()
+
+    # Cambiar estado
+    res = cliente.post(
+        f"/tareas/{tarea_id}/estado"
+    )
+
+    assert res.status_code == 200
+
+    # Verificar estado actualizado
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT estado
+        FROM tareas
+        WHERE id = %s;
+        """,
+        (tarea_id,)
+    )
+
+    nuevo_estado = cur.fetchone()[0]
+
+    cur.close()
+
+    assert nuevo_estado == "Completada"

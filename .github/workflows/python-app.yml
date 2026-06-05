@@ -12,7 +12,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1234
@@ -42,5 +42,15 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: postgres://postgres:1234@localhost:5432/tareas_db
+      run: pytest
+
+    - name: Build Docker image
+      run: docker build -t ejercicio:3.0.0 .
+
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push Docker image
       run: |
-        pytest
+        docker tag ejercicio:3.0.0 ghcr.io/${{ github.repository_owner }}/ejercicio:3.0.0
+        docker push ghcr.io/${{ github.repository_owner }}/ejercicio:3.0.0
