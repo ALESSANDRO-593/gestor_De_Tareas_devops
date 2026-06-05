@@ -52,5 +52,5 @@ jobs:
 
     - name: Push Docker image
       run: |
-        docker tag ejercicio:3.0.0 ghcr.io/${{ github.repository_owner }}/ejercicio:3.0.0
-        docker push ghcr.io/${{ github.repository_owner }}/ejercicio:3.0.0
+         docker tag ejercicio:3.0.0 ghcr.io/alessandro-593/ejercicio:3.0.0
+         docker push ghcr.io/alessandro-593/ejercicio:3.0.0
